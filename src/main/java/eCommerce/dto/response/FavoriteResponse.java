@@ -2,14 +2,16 @@ package eCommerce.dto.response;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
+
 @Data
 public class FavoriteResponse {
-    private Long id;
+    private Long favoriteId;
 
     private Long productId;
-    private Long userId;
 
     private String productName;
-    private Double productPrice;
+
+    private BigDecimal productPrice;
 
 }

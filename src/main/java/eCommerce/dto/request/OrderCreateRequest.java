@@ -5,11 +5,9 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-@Getter
-@Setter
-@Data
 
+@Data
 public class OrderCreateRequest {
-    @NotNull(message = "AddressId boş ola bilməz")
+    @NotNull(message = "Çatdırılma ünvanı seçilməlidir")
     private Long addressId;
 }

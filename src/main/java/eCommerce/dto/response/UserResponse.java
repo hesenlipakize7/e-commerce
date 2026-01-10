@@ -2,12 +2,8 @@ package eCommerce.dto.response;
 
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
 
+@Data
 public class UserResponse {
 
     private Long id;

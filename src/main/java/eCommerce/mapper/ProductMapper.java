@@ -2,7 +2,7 @@ package eCommerce.mapper;
 
 import eCommerce.dto.request.ProductCreateRequest;
 import eCommerce.dto.response.ProductResponse;
-import eCommerce.entity.Product;
+import eCommerce.model.entity.Product;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -15,7 +15,9 @@ public interface ProductMapper {
 
 
     @Mapping(target = "categoryId",source = "category.id")
+    @Mapping(target = "categoryName", source = "category.name")
+    @Mapping(target = "favoriteCount", expression = "java(product.getFavorites().size())")
     ProductResponse toDto(Product product);
 
-    List<ProductResponse> toDto(List<Product> products);
+    List<ProductResponse> toResponseList (List<Product> products );
 }

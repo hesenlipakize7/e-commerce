@@ -2,17 +2,14 @@ package eCommerce.dto.response;
 
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
 
+@Data
 public class OrderResponse {
     private Long orderId;
-    private Double totalAmount;
+    private BigDecimal totalPrice;
     private LocalDate orderDate;
 
 }

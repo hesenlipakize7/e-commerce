@@ -1,52 +1,40 @@
 package eCommerce.serviceLayer.serviceImpl;
 
-import eCommerce.dto.request.CategoryCreateRequest;
 import eCommerce.dto.response.CategoryResponse;
-import eCommerce.entity.Category;
+import eCommerce.exception.NotFoundException;
+import eCommerce.model.entity.Category;
 import eCommerce.mapper.CategoryMapper;
 import eCommerce.repository.CategoryRepository;
 import eCommerce.serviceLayer.service.CategoryService;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
-@Data
+@Service
 @RequiredArgsConstructor
+@Slf4j
 public class CategoryServiceImpl implements CategoryService {
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
+
     @Override
-    public CategoryResponse createCategory(CategoryCreateRequest request) {
-        if (categoryRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Bu kateqoriya artıq mövcuddur");
-        }
-        Category category=categoryMapper.toEntity(request);
-        categoryRepository.save(category);
-        return categoryMapper.toDto(category);
+    public List<CategoryResponse> getRootCategories() {
+        return categoryMapper.toResponseList(categoryRepository.findByParentIsNull());
     }
 
     @Override
-    public List<CategoryResponse> getAllCategories() {
-       return  categoryRepository.findAll()
-               .stream().map(categoryMapper::toDto)
-               .collect(Collectors.toList());
+    public List<CategoryResponse> getChildren(Long parentId) {
+        Category parentCategory = categoryRepository.findById(parentId)
+                .orElseThrow(() -> new NotFoundException("Category Not Found"));
+        return categoryMapper.toResponseList(parentCategory.getChildren());
     }
 
     @Override
-    public CategoryResponse getCategoryById(Long id) {
-        Category category=categoryRepository.findById(id)
-                .orElseThrow(()-> new RuntimeException("Kateqoriya tapılmadı"));
-        return categoryMapper.toDto(category);
-    }
-
-    @Override
-    public void deleteCategory(Long id) {
-        if (categoryRepository.existsById(id)) {
-            throw new RuntimeException("Kateqoriya yoxdur");
-        }
-        categoryRepository.deleteById(id);
+    public CategoryResponse getById(Long id) {
+        return categoryMapper.toDto(categoryRepository.findById(id)
+                .orElseThrow(()-> new NotFoundException("Category not found")));
     }
 }

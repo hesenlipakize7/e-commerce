@@ -1,5 +1,6 @@
 package eCommerce.dto.request;
 
+import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -7,21 +8,19 @@ import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
 @Data
-@RequiredArgsConstructor
-
 public class UserRegisterRequest {
-    @NotBlank(message = "Name boş ola bilməz")
+    @NotBlank(message = "Ad boş ola bilməz")
     private String name;
 
-    @NotBlank(message = "surname boş ola bilməz")
+    @NotBlank(message = "Soyad boş ola bilməz")
     private String surname;
 
     @NotBlank(message = "email boş ola bilməz")
+    @Email(message = "Email formatı yanlışdır")
     private String email;
 
-    @Size(min = 7, message = "şifrə minimum 7 simvol olmalıdır")
+    @NotBlank(message = "Şifrə boş ola bilməz")
+    @Size(min = 6, message = "Şifrə  minimum 6 simvol olmalıdır")
     private String password;
 
-    @NotNull(message = "nomre bos qala bilmez")
-    private Long phone;
 }

@@ -2,9 +2,7 @@ package eCommerce.mapper;
 
 import eCommerce.dto.request.CategoryCreateRequest;
 import eCommerce.dto.response.CategoryResponse;
-import eCommerce.dto.response.ProductResponse;
-import eCommerce.entity.Category;
-import eCommerce.entity.Product;
+import eCommerce.model.entity.Category;
 import org.mapstruct.*;
 
 import java.util.List;
@@ -19,11 +17,10 @@ public interface CategoryMapper {
     Category toEntity(CategoryCreateRequest request);
 
 
-    @Mapping(target = "parent.id",source = "parentId")
-    @Mapping(target = "children",source = "children")
+    @Mapping(target = "parentId",source = "parent.id")
     CategoryResponse toDto(Category category);
 
-    List<ProductResponse> toDto(List<Product> products);
+    List<CategoryResponse> toResponseList(List<Category> categories);
 
 
 }

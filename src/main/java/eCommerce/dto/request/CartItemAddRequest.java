@@ -3,14 +3,11 @@ package eCommerce.dto.request;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
 
-@Getter
-@Setter
+
 @Data
-public class CartItemRequest {
-    @NotNull(message = "ProductId boş ola bilməz")
+public class CartItemAddRequest {
+    @NotNull(message = "Product seçilməlidir")
     private Long productId;
 
     @NotNull(message = "Miqdar boş ola bilməz")

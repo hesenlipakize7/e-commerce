@@ -2,17 +2,15 @@ package eCommerce.dto.response;
 
 import lombok.*;
 
-@Getter
-@Setter
-@NoArgsConstructor
-@AllArgsConstructor
-@Data
+import java.math.BigDecimal;
 
+
+@Data
 public class ProductResponse {
     private Long id;
     private String name;
-    private Double price;
+    private BigDecimal price;
 
-    private Long parentId;
+    private Long categoryId;
     private String categoryName;
 }

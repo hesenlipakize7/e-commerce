@@ -2,7 +2,7 @@ package eCommerce.mapper;
 
 import eCommerce.dto.request.FavoriteCreateRequest;
 import eCommerce.dto.response.FavoriteResponse;
-import eCommerce.entity.Favorite;
+import eCommerce.model.entity.Favorite;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
@@ -16,12 +16,12 @@ public interface FavoriteMapper {
     Favorite toEntity(FavoriteCreateRequest request);
 
     @Mapping(target = "productId",source = "product.id")
-    @Mapping(target = "userId",source = "user.id")
+    @Mapping(target = "favoriteId",source = "id")
     @Mapping(target = "productName",source = "product.name")
     @Mapping(target = "productPrice",source = "product.price")
-    FavoriteResponse toDto(Favorite favorite);
+    FavoriteResponse toResponseList(Favorite favorite);
 
-    List<FavoriteResponse> toDto(List<Favorite> favorites);
+    List<FavoriteResponse> toResponseList(List<Favorite> favorites);
 
 
 }
