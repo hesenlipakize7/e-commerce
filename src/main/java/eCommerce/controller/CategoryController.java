@@ -1,12 +1,12 @@
 package eCommerce.controller;
 
 import eCommerce.dto.response.CategoryResponse;
+import eCommerce.dto.response.ProductResponse;
 import eCommerce.serviceLayer.service.CategoryService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -16,9 +16,15 @@ import java.util.List;
 public class CategoryController {
     private final CategoryService categoryService;
 
-    @GetMapping
-    public List<CategoryResponse> getRootCategories() {
-        return categoryService.getRootCategories();
+
+    @GetMapping("{id}/products")
+    public Page<ProductResponse> getProducts(@PathVariable Long id, Pageable pageable) {
+        return categoryService.getProducts(id, pageable);
+    }
+
+    @GetMapping("/search")
+    public List<CategoryResponse> search(@RequestParam String keyword) {
+        return categoryService.search(keyword);
     }
 
     @GetMapping("{id}")

@@ -1,5 +1,6 @@
 package eCommerce.serviceLayer.serviceImpl;
 
+import eCommerce.dto.response.CartItemResponse;
 import eCommerce.dto.response.CartResponse;
 import eCommerce.exception.BadRequestException;
 import eCommerce.exception.NotFoundException;
@@ -18,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -54,39 +57,78 @@ public class CartServiceImpl implements CartService {
     @Override
     public void removeProductFromCart(Long productId) {
         User user = userService.getAuthenticatedUser();
+        log.info("Remove product from cart requested. userId={}, productId={}", user.getId(), productId);
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new BadRequestException("Cart is empty"));
+                .orElseThrow(() -> {
+                    log.warn("Remove product failed. Cart not found. userId={}", user.getId());
+                    return new BadRequestException("Cart is empty");
+                });
 
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(productId, cart.getId())
-                .orElseThrow(() -> new NotFoundException("Product not in cart"));
+                .orElseThrow(() -> {
+                    log.warn("Product not found in cart. cartId={}, productId={}", cart.getId(), productId);
+                    return new NotFoundException("Product not in cart");
+                });
         cart.getCartItems().remove(cartItem);
+        log.info("Product removed from cart successfully. userId={}, productId={}", user.getId(), productId);
     }
 
     @Override
     public void updateProductQuantity(Long productId, int quantity) {
         if (quantity <= 0) {
+            log.warn("Invalid quantity update attempted. productId={}, quantity={}", productId, quantity);
             throw new BadRequestException("Quantity must be greater than 0");
         }
         User user = userService.getAuthenticatedUser();
+        log.info("Update product quantity requested. userId={}, productId={}, quantity={}", user.getId(), productId, quantity);
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new NotFoundException("Cart not found"));
+                .orElseThrow(() -> {
+                    log.warn("Cart not found during quantity update. userId={}", user.getId());
+                    return new NotFoundException("Cart not found");
+                });
         CartItem cartItem = cartItemRepository.findByCartIdAndProductId(productId, cart.getId())
-                .orElseThrow(() -> new NotFoundException("Product not in cart"));
+                .orElseThrow(() -> {
+                    log.warn("Product not found in cart during quantity update. cartId={}, productId={}", cart.getId(), productId);
+                    return new NotFoundException("Product not in cart");
+                });
         cartItem.setQuantity(quantity);
+        log.debug("Product quantity updated in cart. cartId={}, productId={}, quantity={}", cart.getId(), productId, quantity);
     }
 
     @Override
     @Transactional(readOnly = true)
     public CartResponse getMyCart() {
         User user = userService.getAuthenticatedUser();
-        return cartRepository.findByUserId(user.getId())
-                .map(cartMapper::toDto)
-                .orElseGet(CartResponse::empty);
+        log.info("Fetching cart for user. userId={}", user.getId());
+        Cart cart = cartRepository.findByUserId(user.getId())
+                .orElseThrow(() -> new BadRequestException("Cart is empty"));
+
+        List<CartItemResponse> items = cartMapper.toItemDtoList(cart.getCartItems());
+
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (CartItem item : cart.getCartItems()) {
+            BigDecimal itemTotal =
+                    item.getProduct().getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+
+            totalPrice = totalPrice.add(itemTotal);
+        }
+
+        CartResponse response = new CartResponse();
+        response.setCartItems(items);
+        response.setTotalPrice(totalPrice);
+
+        return response;
+
     }
 
     private Cart createCart(User user) {
+        log.info("Creating new cart for user. userId={}", user.getId());
         Cart cart = new Cart();
         cart.setUser(user);
-        return cartRepository.save(cart);
+        Cart savedCart = cartRepository.save(cart);
+        log.debug("Cart created successfully. cartId={}, userId={}", savedCart.getId(), user.getId());
+        return savedCart;
     }
 }

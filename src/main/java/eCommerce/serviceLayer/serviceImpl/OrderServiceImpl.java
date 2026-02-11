@@ -26,70 +26,125 @@ import java.util.List;
 @Transactional
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
-    private final CategoryRepository categoryRepository;
-    private final OrderItemRepository orderItemRepository;
     private final CartRepository cartRepository;
-    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
 
 
     @Override
     public OrderResponse checkout(OrderCreateRequest orderCreateRequest) {
+        log.info("Checkout started");
         User user = userService.getAuthenticatedUser();
+        Cart cart = getUserCart(user);
+        validateStock(cart);
+        Order order = createOrder(user);
+        List<OrderItem> orderItems = createOrderItems(cart, order);
+        order.setOrderItems(orderItems);
+        BigDecimal totalAmount = calculateTotal(orderItems);
+        order.setTotalAmount(totalAmount);
+        decreaseStock(cart);
+        Order savedOrder = orderRepository.save(order);
+        log.info("Order created successfully");
+        clearCart(cart);
+        log.info("Checkout finished successfully");
+        return orderMapper.toOrderResponse(savedOrder);
+    }
 
+    private Cart getUserCart(User user) {
+        log.debug("Fetching cart for userId={}", user.getId());
         Cart cart = cartRepository.findByUserId(user.getId())
-                .orElseThrow(() -> new BadRequestException("Cart is empty"));
+                .orElseThrow(() -> {
+                    return new NotFoundException("Cart not found");
+                });
         if (cart.getCartItems().isEmpty()) {
             throw new BadRequestException("Cart is empty");
         }
+        log.info("Cart found");
+        return cart;
+    }
+
+    private Order createOrder(User user) {
+        log.debug("Creating order for user");
         Order order = new Order();
         order.setUser(user);
         order.setOrderStatus(OrderStatus.CREATED);
         order.setOrderDate(LocalDateTime.now());
+        return order;
+    }
 
+    private List<OrderItem> createOrderItems(Cart cart, Order order) {
+        log.debug("Creating order items");
         List<OrderItem> orderItems = new ArrayList<>();
-        BigDecimal totalPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
-            if (product.getStock() < cartItem.getQuantity()) {
-                throw new BadRequestException(product.getName() + "stock is not enough");
-            }
-            product.setStock(product.getStock() - cartItem.getQuantity());
-
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
             orderItem.setProductName(product.getName());
             orderItem.setPrice(product.getPrice());
-            orderItem.setQuantity(product.getStock());
-
+            orderItem.setQuantity(cartItem.getQuantity());
             orderItems.add(orderItem);
-
-            totalPrice = totalPrice.add(product.getPrice())
-                    .multiply(BigDecimal.valueOf(cartItem.getQuantity()));
         }
+        log.info("Order items created");
+        return orderItems;
+    }
 
-        order.setOrderItems(orderItems);
-        order.setTotalAmount(totalPrice);
-        Order savedOrder = orderRepository.save(order);
+    private void validateStock(Cart cart) {
+        for (CartItem cartItem : cart.getCartItems()) {
+            Product product = cartItem.getProduct();
+            if (product.getStock() < cartItem.getQuantity()) {
+                throw new BadRequestException("There is not enough stock");
+            }
+        }
+    }
+
+    private void decreaseStock(Cart cart) {
+        for (CartItem cartItem : cart.getCartItems()) {
+            Product product = cartItem.getProduct();
+            product.setStock(product.getStock() - cartItem.getQuantity());
+        }
+        log.debug("Stock decreased");
+    }
+
+    private BigDecimal calculateTotal(List<OrderItem> orderItems) {
+        BigDecimal total = BigDecimal.ZERO;
+        for (OrderItem item : orderItems) {
+            BigDecimal itemTotal =
+                    item.getPrice()
+                            .multiply(BigDecimal.valueOf(item.getQuantity()));
+            total = total.add(itemTotal);
+        }
+        log.info("Total amount calculated: {}", total);
+        return total;
+    }
+
+    private void clearCart(Cart cart) {
+        log.info("Clearing cart id={}", cart.getId());
         cartRepository.delete(cart);
-        return orderMapper.toOrderResponse(savedOrder);
     }
 
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders() {
+        log.info("Fetching orders for current user");
         User user = userService.getAuthenticatedUser();
-        return orderMapper.toOrderResponseList(orderRepository.findAllByUserId(user.getId()));
+        log.debug("Authenticated user");
+        List<Order> orders = orderRepository.findAllByUserId(user.getId());
+        log.info("Orders fetched");
+        return orderMapper.toOrderResponseList(orders);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long orderId) {
+        log.info("Fetching order details");
         User user = userService.getAuthenticatedUser();
+        log.debug("Authenticated user ");
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
-                .orElseThrow(()-> new NotFoundException("Order not found"));
+                .orElseThrow(() -> {
+                    return new NotFoundException("Order not found");
+                });
+        log.info("Order found");
         return orderMapper.toOrderResponse(order);
     }
 }

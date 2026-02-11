@@ -1,6 +1,5 @@
 package eCommerce.mapper;
 
-import eCommerce.dto.request.CategoryCreateRequest;
 import eCommerce.dto.response.CategoryResponse;
 import eCommerce.model.entity.Category;
 import org.mapstruct.*;
@@ -14,7 +13,7 @@ public interface CategoryMapper {
     @Mapping(target = "parent", ignore = true)
     @Mapping(target = "children", ignore = true)
     @Mapping(target = "products", ignore = true)
-    Category toEntity(CategoryCreateRequest request);
+    Category toEntity(CategoryResponse categoryResponse);
 
 
     @Mapping(target = "parentId",source = "parent.id")

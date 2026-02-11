@@ -12,6 +12,7 @@ import eCommerce.serviceLayer.service.AddressService;
 import eCommerce.serviceLayer.service.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.List;
 @Service
 @Transactional
 @RequiredArgsConstructor
+@Slf4j
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
@@ -27,33 +29,50 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponse createAddress(AddressCreateRequest addressCreateRequest) {
         User user = userService.getAuthenticatedUser();
+        log.info("Create address requested. userId={}", user.getId());
 
         Address address = addressMapper.toEntity(addressCreateRequest);
         address.setUser(user);
-        return addressMapper.toDto(addressRepository.save(address));
+        Address savedAddress = addressRepository.save(address);
+        log.info("Address created successfully. userId={}, addressId={}", user.getId(), savedAddress.getId());
+        return addressMapper.toDto(savedAddress);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AddressResponse> getMyAddresses() {
         User user = userService.getAuthenticatedUser();
-        return addressMapper.toResponseList(addressRepository.findAllByUserId(user.getId()));
+        log.info("Fetching addresses for user. userId={}", user.getId());
+        List<Address> addresses = addressRepository.findAllByUserId(user.getId());
+        log.debug("Address count for userId={}: {}", user.getId(), addresses.size());
+        return addressMapper.toResponseList(addresses);
     }
 
     @Override
     public AddressResponse updateAddress(Long addressId, AddressUpdateRequest addressUpdateRequest) {
         User user = userService.getAuthenticatedUser();
+        log.info("Update address requested. userId={}, addressId={}", user.getId(), addressId);
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
-                .orElseThrow(() -> new NotFoundException("Address not found"));
+                .orElseThrow(() -> {
+                    log.warn("Address not found for update. userId={}, addressId={}", user.getId(), addressId);
+                    return new NotFoundException("Address not found");
+                });
         addressMapper.updateAddressFromDto(addressUpdateRequest, address);
-        return addressMapper.toDto(addressRepository.save(address));
+        Address updatedAddress = addressRepository.save(address);
+        log.info("Address updated successfully. userId={}, addressId={}", user.getId(), addressId);
+        return addressMapper.toDto(updatedAddress);
     }
 
     @Override
     public void deleteAddress(Long addressId) {
         User user = userService.getAuthenticatedUser();
+        log.info("Delete address requested. userId={}, addressId={}", user.getId(), addressId);
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
-                .orElseThrow(() -> new NotFoundException("Address not found"));
+                .orElseThrow(() -> {
+                    log.warn("Address not found for delete. userId={}, addressId={}", user.getId(), addressId);
+                    return new NotFoundException("Address not found");
+                });
         addressRepository.delete(address);
+        log.info("Address delete successfully. userId={}, addressId={}", user.getId(), addressId);
     }
 }

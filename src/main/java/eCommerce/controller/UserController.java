@@ -3,13 +3,10 @@ package eCommerce.controller;
 import eCommerce.dto.response.UserResponse;
 import eCommerce.dto.update.ChangePasswordRequest;
 import eCommerce.dto.update.UserUpdateRequest;
-import eCommerce.security.CustomUserDetailsService;
 import eCommerce.serviceLayer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController

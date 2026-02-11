@@ -1,5 +1,6 @@
 package eCommerce.controller;
 
+import eCommerce.dto.request.FavoriteCreateRequest;
 import eCommerce.dto.response.ProductResponse;
 import eCommerce.serviceLayer.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +19,8 @@ public class FavoriteController {
     FavoriteService favoriteService;
 
     @PostMapping("/{productId}")
-    public ResponseEntity<Void> addFavorite(@PathVariable Long productId) {
-        favoriteService.addToFavorites(productId);
+    public ResponseEntity<Void> addFavorite(@RequestBody FavoriteCreateRequest favoriteCreateRequest) {
+        favoriteService.addToFavorites(favoriteCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
