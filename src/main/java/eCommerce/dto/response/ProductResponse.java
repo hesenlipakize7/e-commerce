@@ -5,7 +5,9 @@ import lombok.*;
 import java.math.BigDecimal;
 
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class ProductResponse {
     private Long id;
     private String name;
@@ -13,5 +15,5 @@ public class ProductResponse {
     private Integer stock;
 
     private Long categoryId;
-    private String categoryName;
+
 }

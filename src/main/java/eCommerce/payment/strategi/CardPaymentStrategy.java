@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Component
-public class CreditCardPaymentStrategy implements PaymentStrategy {
+public class CardPaymentStrategy implements PaymentStrategy {
 
     @Override
     public PaymentMethod getPaymentMethod() {
@@ -24,6 +24,7 @@ public class CreditCardPaymentStrategy implements PaymentStrategy {
         payment.setOrder(order);
         payment.setPaymentMethod(createRequest.getPaymentMethod());
         payment.setAmount(order.getTotalAmount());
+
 
         payment.setPaymentStatus(PaymentStatus.SUCCESS);
         payment.setTransactionId(UUID.randomUUID().toString());

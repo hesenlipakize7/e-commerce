@@ -15,6 +15,6 @@ public interface UserService {
 
     UserResponse updateMyProfile(UserUpdateRequest userUpdateRequest);
 
-    void changeMyPassword(ChangePasswordRequest changePasswordRequest);
+    UserResponse changeMyPassword(ChangePasswordRequest changePasswordRequest);
 
 }

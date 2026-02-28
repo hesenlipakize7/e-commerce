@@ -16,10 +16,12 @@ import eCommerce.serviceLayer.service.PaymentService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class PaymentServiceImpl implements PaymentService {
     private final OrderRepository orderRepository;
     private final PaymentRepository paymentRepository;
@@ -36,14 +38,14 @@ public class PaymentServiceImpl implements PaymentService {
         PaymentStrategy strategy = paymentStrategyFactory.getStrategy(createRequest.getPaymentMethod());
 
         Payment payment = strategy.processPayment(order, createRequest);
-        paymentRepository.save(payment);
+        Payment savedPayment = paymentRepository.save(payment);
 
         order.setOrderStatus(OrderStatus.PAID);
-        order.setPayment(payment);
+        order.setPayment(savedPayment);
 
         log.info("Payment successful");
 
-        return paymentMapper.toDto(payment);
+        return paymentMapper.toDto(savedPayment);
     }
 
     private Order getOrder(Long orderId) {

@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/carts")
+@RequestMapping("/api/cart")
 @RequiredArgsConstructor
 public class CartController {
     private final CartService cartService;
@@ -17,7 +17,7 @@ public class CartController {
         return cartService.getMyCart();
     }
 
-    @PostMapping("/items")
+    @PostMapping("/add/items")
     public void addProductToCart(@RequestParam Long productId, @RequestParam int quantity) {
         cartService.addProductToCart(productId, quantity);
     }

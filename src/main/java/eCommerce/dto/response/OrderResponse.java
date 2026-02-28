@@ -6,10 +6,12 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class OrderResponse {
     private Long orderId;
-    private BigDecimal totalPrice;
+    private BigDecimal totalAmount;
     private LocalDate orderDate;
 
 }

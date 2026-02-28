@@ -16,7 +16,6 @@ public interface FavoriteMapper {
     Favorite toEntity(FavoriteCreateRequest request);
 
     @Mapping(target = "productId",source = "product.id")
-    @Mapping(target = "favoriteId",source = "id")
     @Mapping(target = "productName",source = "product.name")
     @Mapping(target = "productPrice",source = "product.price")
     FavoriteResponse toResponseList(Favorite favorite);

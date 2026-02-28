@@ -6,7 +6,6 @@ import eCommerce.dto.update.UserUpdateRequest;
 import eCommerce.serviceLayer.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -27,8 +26,7 @@ public class UserController {
     }
 
     @PutMapping("/me/change-password")
-    public ResponseEntity<Void> changeMyPassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
-        userService.changeMyPassword(changePasswordRequest);
-        return ResponseEntity.ok().build();
+    public UserResponse changeMyPassword(@Valid @RequestBody ChangePasswordRequest changePasswordRequest) {
+        return userService.changeMyPassword(changePasswordRequest);
     }
 }

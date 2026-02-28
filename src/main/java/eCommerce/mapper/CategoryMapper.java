@@ -11,7 +11,7 @@ public interface CategoryMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "parent", ignore = true)
-    @Mapping(target = "children", ignore = true)
+    @Mapping(target = "subCategories", ignore = true)
     @Mapping(target = "products", ignore = true)
     Category toEntity(CategoryResponse categoryResponse);
 

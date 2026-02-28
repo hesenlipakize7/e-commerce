@@ -29,12 +29,11 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponse createAddress(AddressCreateRequest addressCreateRequest) {
         User user = userService.getAuthenticatedUser();
-        log.info("Create address requested. userId={}", user.getId());
-
+        log.info("Create address requested. ");
         Address address = addressMapper.toEntity(addressCreateRequest);
         address.setUser(user);
         Address savedAddress = addressRepository.save(address);
-        log.info("Address created successfully. userId={}, addressId={}", user.getId(), savedAddress.getId());
+        log.info("Address created successfully : " + address);
         return addressMapper.toDto(savedAddress);
     }
 
@@ -42,37 +41,37 @@ public class AddressServiceImpl implements AddressService {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AddressResponse> getMyAddresses() {
         User user = userService.getAuthenticatedUser();
-        log.info("Fetching addresses for user. userId={}", user.getId());
+        log.info("Fetching addresses for user. " );
         List<Address> addresses = addressRepository.findAllByUserId(user.getId());
-        log.debug("Address count for userId={}: {}", user.getId(), addresses.size());
+        log.debug("Address count for user " );
         return addressMapper.toResponseList(addresses);
     }
 
     @Override
     public AddressResponse updateAddress(Long addressId, AddressUpdateRequest addressUpdateRequest) {
         User user = userService.getAuthenticatedUser();
-        log.info("Update address requested. userId={}, addressId={}", user.getId(), addressId);
+        log.info("Update address requested. ");
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
                 .orElseThrow(() -> {
-                    log.warn("Address not found for update. userId={}, addressId={}", user.getId(), addressId);
+                    log.warn("Address not found for update. ");
                     return new NotFoundException("Address not found");
                 });
         addressMapper.updateAddressFromDto(addressUpdateRequest, address);
         Address updatedAddress = addressRepository.save(address);
-        log.info("Address updated successfully. userId={}, addressId={}", user.getId(), addressId);
+        log.info("Address updated successfully. " );
         return addressMapper.toDto(updatedAddress);
     }
 
     @Override
     public void deleteAddress(Long addressId) {
         User user = userService.getAuthenticatedUser();
-        log.info("Delete address requested. userId={}, addressId={}", user.getId(), addressId);
+        log.info("Delete address requested.");
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
                 .orElseThrow(() -> {
-                    log.warn("Address not found for delete. userId={}, addressId={}", user.getId(), addressId);
+                    log.warn("Address not found for delete. ");
                     return new NotFoundException("Address not found");
                 });
         addressRepository.delete(address);
-        log.info("Address delete successfully. userId={}, addressId={}", user.getId(), addressId);
+        log.info("Address delete successfully. ");
     }
 }

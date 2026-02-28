@@ -32,8 +32,8 @@ public class CategoryController {
         return categoryService.getById(id);
     }
 
-    @GetMapping("/{id}/children")
-    public List<CategoryResponse> getChildren(@PathVariable Long id) {
-        return categoryService.getChildren(id);
+    @GetMapping("/{id}/child")
+    public List<CategoryResponse> getSubCategories(@PathVariable Long id) {
+        return categoryService.getSubCategories(id);
     }
 }

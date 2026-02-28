@@ -1,12 +1,14 @@
 package eCommerce.dto.response;
 
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class FavoriteResponse {
-    private Long favoriteId;
+    private Long id;
 
     private Long productId;
 

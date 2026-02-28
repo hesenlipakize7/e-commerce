@@ -7,6 +7,8 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PaymentMapper {
+
     @Mapping(source = "order.id",target = "orderId")
+    @Mapping(source = "id", target = "paymentId")
     PaymentResponse toDto(Payment payment);
 }

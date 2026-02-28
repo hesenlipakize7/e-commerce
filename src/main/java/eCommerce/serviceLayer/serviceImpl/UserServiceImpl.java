@@ -36,10 +36,10 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("User is not authenticated");
         }
         String email = authentication.getName();
-        log.debug("Authenticated user email extracted from token: {}", email);
+        log.debug("Authenticated user email extracted from token.");
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                log.error("Authenticated user not found in database. email={}", email);
+                log.error("Authenticated user not found in database.");
                         return new NotFoundException("User not found");
                 });
     }
@@ -47,7 +47,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse getMyProfile() {
         User user= getAuthenticatedUser();
-        log.info("User profile requested. userId={}", user.getId());
+        log.info("User profile requested.");
         return userMapper.toDto(user);
     }
 
@@ -55,23 +55,24 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateMyProfile(UserUpdateRequest userUpdateRequest) {
         User user = getAuthenticatedUser();
-        log.info("User profile update started. userId={}", user.getId());
+        log.info("User profile update started.");
         userMapper.updateUserFromDto(userUpdateRequest, user);
         userRepository.save(user);
-        log.info("User profile updated successfully. userId={}", user.getId());
+        log.info("User profile updated successfully.");
         return userMapper.toDto(user);
     }
 
     @Override
-    public void changeMyPassword(ChangePasswordRequest changePasswordRequest) {
+    public UserResponse changeMyPassword(ChangePasswordRequest changePasswordRequest) {
         User user = getAuthenticatedUser();
         log.info("Password change attempt. userId={}", user.getId());
         if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-            log.warn("Password change failed. Wrong current password. userId={}", user.getId());
+            log.warn("Password change failed. Wrong current password.");
             throw new BadRequestException("Current password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
-        log.info("Password changed successfully. userId={}", user.getId());
+        log.info("Password changed successfully.");
+        return  userMapper.toDto(user);
     }
 }

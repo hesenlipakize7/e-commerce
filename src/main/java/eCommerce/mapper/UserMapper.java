@@ -22,7 +22,7 @@ public interface UserMapper {
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     void updateUserFromDto(UserUpdateRequest request, @MappingTarget User user);
-    @Mapping(target = "favoriteCount", expression = "java(user.getFavorites().size())")
+
     UserResponse toDto(User user);
 
     List<UserResponse> toDto(List<User> users);

@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
@@ -32,13 +33,28 @@ public class SecurityConfiguration {
 
                 .authorizeHttpRequests(
                         authorize -> authorize
+                                .requestMatchers("/api/admin/**").hasRole("ADMIN")
                                 .requestMatchers("/auth/**").permitAll()
-                                .requestMatchers("/api/addresses/**").permitAll()
-//                                .requestMatchers(adminUrls).hasAnyAuthority("ROLE_ADMIN")
-//                                .requestMatchers(clientUrls).hasAnyAuthority("ROLE_CLIENT")
-                                //             .requestMatchers(anyAuthUrls).authenticated()
-//                                .anyRequest().authenticated()
-                ).exceptionHandling(exceptionHandling -> exceptionHandling
+                                .requestMatchers("/api/categories/**").permitAll()
+                                .requestMatchers("/api/products/**").permitAll()
+                                .requestMatchers("/api/addresses/**").authenticated()
+                                .requestMatchers(HttpMethod.POST,"/api/addresses").hasRole("USER")
+                                .requestMatchers(HttpMethod.PUT,"/api/addresses/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.DELETE,"/api/addresses/**").hasRole("USER")
+                                .requestMatchers("/api/cart/**").authenticated()
+                                .requestMatchers(HttpMethod.POST,"/api/cart/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.PUT,"/api/products/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.DELETE,"/api/products/**").hasRole("USER")
+                                .requestMatchers("/api/favorites/**").authenticated()
+                                .requestMatchers(HttpMethod.POST,"/api/favorites/**").hasRole("USER")
+                                .requestMatchers(HttpMethod.DELETE,"/api/favorites/**").hasRole("USER")
+                                .requestMatchers("/api/orders/**").authenticated()
+                                .requestMatchers("/api/payments/**").hasRole("USER")
+                                .requestMatchers("/api/users/**").authenticated()
+                                .requestMatchers(HttpMethod.PUT,"/api/users/**").hasRole("USER")
+
+                )
+                .exceptionHandling(exceptionHandling -> exceptionHandling
                         .authenticationEntryPoint((request, response, authException) ->
                                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED)
                         )

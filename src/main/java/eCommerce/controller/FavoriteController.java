@@ -1,12 +1,9 @@
 package eCommerce.controller;
 
-import eCommerce.dto.request.FavoriteCreateRequest;
 import eCommerce.dto.response.ProductResponse;
 import eCommerce.serviceLayer.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -14,14 +11,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/favorites")
 @RequiredArgsConstructor
-@PreAuthorize("isAuthenticated()")
 public class FavoriteController {
-    FavoriteService favoriteService;
+    private final FavoriteService favoriteService;
+
 
     @PostMapping("/{productId}")
-    public ResponseEntity<Void> addFavorite(@RequestBody FavoriteCreateRequest favoriteCreateRequest) {
-        favoriteService.addToFavorites(favoriteCreateRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+    public ResponseEntity<Void> addFavorite(@PathVariable Long productId) {
+        favoriteService.addToFavorites(productId);
+        return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("/{productId}")

@@ -8,7 +8,9 @@ import java.util.List;
 
 @Entity
 @Table(name = "categories")
-@Data
+@Setter
+@Getter
+@NoArgsConstructor
 public class Category {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,14 +19,15 @@ public class Category {
     @Column(nullable = false)
     private String name;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne
     @JoinColumn(name = "parent_id")
     private Category parent;
 
-    @OneToMany(mappedBy = "parent")
-    private List<Category> children=new ArrayList<>();
+    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL)
+    private List<Category> subCategories = new ArrayList<>();
 
     @OneToMany(mappedBy = "category")
-    private List<Product> products =new ArrayList<>();
+    private List<Product> products = new ArrayList<>();
+
 
 }

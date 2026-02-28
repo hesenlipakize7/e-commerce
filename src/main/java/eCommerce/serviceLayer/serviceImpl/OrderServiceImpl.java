@@ -27,6 +27,8 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
 
@@ -91,6 +93,7 @@ public class OrderServiceImpl implements OrderService {
     private void validateStock(Cart cart) {
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
+            log.warn("Insufficient stock." );
             if (product.getStock() < cartItem.getQuantity()) {
                 throw new BadRequestException("There is not enough stock");
             }
@@ -101,6 +104,7 @@ public class OrderServiceImpl implements OrderService {
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
             product.setStock(product.getStock() - cartItem.getQuantity());
+            productRepository.save(product);
         }
         log.debug("Stock decreased");
     }
@@ -113,13 +117,13 @@ public class OrderServiceImpl implements OrderService {
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
             total = total.add(itemTotal);
         }
-        log.info("Total amount calculated: {}", total);
+        log.info("Total amount calculated. total={}", total);
         return total;
     }
 
     private void clearCart(Cart cart) {
-        log.info("Clearing cart id={}", cart.getId());
-        cartRepository.delete(cart);
+        log.info("Clearing cart id.");
+        cartItemRepository.deleteAll(cart.getCartItems());
     }
 
 

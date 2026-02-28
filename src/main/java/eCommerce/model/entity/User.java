@@ -1,5 +1,6 @@
 package eCommerce.model.entity;
 
+import eCommerce.model.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,9 +12,7 @@ import java.util.Objects;
 @Table(name = "users")
 @Getter
 @Setter
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,8 +27,21 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL,orphanRemoval = true)
-    private List<Favorite> favorites=new ArrayList<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Favorite> favorites = new ArrayList<>();
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+
+    public User(String name, String surname, String email, String password, Role role) {
+        this.name = name;
+        this.surname = surname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
 
     @Override
     public boolean equals(Object o) {

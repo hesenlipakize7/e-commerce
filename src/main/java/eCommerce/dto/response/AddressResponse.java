@@ -3,7 +3,9 @@ package eCommerce.dto.response;
 import lombok.*;
 
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class AddressResponse {
     private Long id;
     private String city;

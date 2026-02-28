@@ -66,13 +66,13 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException e){
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(ConstraintViolationException e) {
         log.error("ActionLog.error ConstraintViolation: {} ", e.getMessage());
         return buildError(e.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now());
     }
 
     @ExceptionHandler(AuthenticationException.class)
-    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException e){
+    public ResponseEntity<ErrorResponse> handleAuthentication(AuthenticationException e) {
         log.error("ActionLog.error Authentication: {} ", e.getMessage());
         return buildError(e.getMessage(), HttpStatus.UNAUTHORIZED, LocalDateTime.now());
     }
@@ -82,7 +82,4 @@ public class GlobalExceptionHandler {
         log.error("ActionLog.error HttpMessageNotReadable: Invalid JSON data: {} ", ex.getMessage());
         return buildError(ex.getMessage(), HttpStatus.BAD_REQUEST, LocalDateTime.now());
     }
-
-
-
 }

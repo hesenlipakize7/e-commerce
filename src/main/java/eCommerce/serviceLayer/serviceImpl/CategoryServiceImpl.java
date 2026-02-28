@@ -1,7 +1,9 @@
 package eCommerce.serviceLayer.serviceImpl;
 
+import eCommerce.dto.request.CategoryCreateRequest;
 import eCommerce.dto.response.CategoryResponse;
 import eCommerce.dto.response.ProductResponse;
+import eCommerce.dto.update.CategoryUpdateRequest;
 import eCommerce.exception.BadRequestException;
 import eCommerce.exception.NotFoundException;
 import eCommerce.mapper.ProductMapper;
@@ -31,44 +33,92 @@ public class CategoryServiceImpl implements CategoryService {
 
 
     @Override
+    public CategoryResponse createCategory(CategoryCreateRequest createRequest) {
+        log.info("Admin creating a category: {}", createRequest.getName());
+        Category category = new Category();
+        category.setName(createRequest.getName());
+        if (createRequest.getParentId() != null) {
+            Category parent = categoryRepository.findById(createRequest.getParentId())
+                    .orElseThrow(() -> new NotFoundException("Parent category not found"));
+            category.setParent(parent);
+        }
+        Category savedCategory = categoryRepository.save(category);
+        log.info("Category created successfully : id={}", savedCategory.getId());
+        return categoryMapper.toDto(savedCategory);
+    }
+
+    @Override
+    public CategoryResponse updateCategory(Long id, CategoryUpdateRequest updateRequest) {
+        log.info("Admin updating a category: {}", updateRequest.getName());
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+        category.setName(updateRequest.getName());
+        if (updateRequest.getParentId() != null) {
+            Category parent = categoryRepository.findById(id)
+                    .orElseThrow(() -> new NotFoundException("Parent category not found"));
+            category.setParent(parent);
+        }
+        log.info("Category updated successfully : id={}", category.getId());
+        return categoryMapper.toDto(category);
+    }
+
+    @Override
+    public void deleteCategory(Long id) {
+        log.info("Admin deleting a category: {}", id);
+        Category category = categoryRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Category not found"));
+        categoryRepository.delete(category);
+        log.info("Category deleted successfully : id={}", category.getId());
+    }
+
+    @Override
     @Transactional(readOnly = true)
     public Page<ProductResponse> getProducts(Long categoryId, Pageable pageable) {
+        log.info("Fetching products for category.");
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> new NotFoundException("Category not found"));
-        Page<Product> products = productRepository.findAllByCategoryId(category.getId(),pageable);
+        Page<Product> products = productRepository.findAllByCategoryId(category.getId(), pageable);
+        log.info("Products fetched successfully.");
         return products.map(productMapper::toDto);
     }
 
     @Override
     public List<CategoryResponse> search(String keyword) {
+        log.info("Searching for categories for keyword: {} ", keyword);
         if (keyword == null || keyword.trim().isEmpty()) {
             throw new BadRequestException("Keyword cannot be empty");
         }
-        List<Category> categories = categoryRepository.findByNameContainingIgnoreCase(keyword);
-        return categoryMapper.toResponseList(categories);
+        List<Category> found = categoryRepository.findByNameContainingIgnoreCase(keyword);
+
+        List<Category> roots = found.stream()
+                .filter(category -> category.getParent() == null)
+                .toList();
+
+        log.info("Category search completed.");
+        return categoryMapper.toResponseList(roots);
     }
 
     @Override
-    public List<CategoryResponse> getChildren(Long parentId) {
-        log.info("Fetching child categories. parentId={}", parentId);
+    public List<CategoryResponse> getSubCategories(Long parentId) {
+        log.info("Fetching sub categories. ");
         Category parentCategory = categoryRepository.findById(parentId)
                 .orElseThrow(() -> {
-                    log.warn("Parent category not found. parentId={}", parentId);
+                    log.warn("Parent category not found.");
                     return new NotFoundException("Category Not Found");
                 });
-        log.debug("Child category count for parentId={}: {}", parentId, parentCategory);
-        return categoryMapper.toResponseList(parentCategory.getChildren());
+        log.debug("Sub category count for parentId.");
+        return categoryMapper.toResponseList(parentCategory.getSubCategories());
     }
 
     @Override
     public CategoryResponse getById(Long id) {
-        log.info("Fetching category by id. categoryId={}", id);
+        log.info("Fetching category by id.");
         Category category = categoryRepository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("Category not found. categoryId={}", id);
+                    log.warn("Category not found.");
                     return new NotFoundException("Category Not Found");
                 });
-        log.debug("Category found. categoryId={}, name={}", category.getId(), category.getName());
+        log.debug("Category found. ");
         return categoryMapper.toDto(category);
     }
 }

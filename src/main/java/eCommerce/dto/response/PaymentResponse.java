@@ -2,11 +2,13 @@ package eCommerce.dto.response;
 
 import eCommerce.model.enums.PaymentMethod;
 import eCommerce.model.enums.PaymentStatus;
-import lombok.Data;
+import lombok.*;
 
 import java.math.BigDecimal;
 
-@Data
+@Getter
+@Setter
+@NoArgsConstructor
 public class PaymentResponse {
     private Long paymentId;
     private Long orderId;
