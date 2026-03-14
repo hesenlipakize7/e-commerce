@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
 
 import eCommerce.dto.request.ProductCreateRequest;
@@ -17,6 +17,8 @@ public interface ProductService {
     List<ProductResponse> search(String keyword);
 
     ProductResponse createProduct(ProductCreateRequest productCreateRequest);
+
     ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest);
+
     void deleteProduct(Long id);
 }

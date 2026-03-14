@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
 import eCommerce.dto.auth.LoginRequest;
 import eCommerce.dto.auth.RegisterRequest;

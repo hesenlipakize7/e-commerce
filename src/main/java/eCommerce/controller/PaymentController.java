@@ -2,7 +2,7 @@ package eCommerce.controller;
 
 import eCommerce.dto.request.PaymentCreateRequest;
 import eCommerce.dto.response.PaymentResponse;
-import eCommerce.serviceLayer.service.PaymentService;
+import eCommerce.service.PaymentService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

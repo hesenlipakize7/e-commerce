@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.serviceImpl;
+package eCommerce.service.impl;
 
 import eCommerce.dto.request.OrderCreateRequest;
 import eCommerce.dto.response.OrderResponse;
@@ -8,12 +8,12 @@ import eCommerce.mapper.OrderMapper;
 import eCommerce.model.entity.*;
 import eCommerce.model.enums.OrderStatus;
 import eCommerce.repository.*;
-import eCommerce.serviceLayer.service.OrderService;
-import eCommerce.serviceLayer.service.UserService;
-import jakarta.transaction.Transactional;
+import eCommerce.service.OrderService;
+import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -27,16 +27,14 @@ import java.util.List;
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
-    private final CartItemRepository cartItemRepository;
-    private final ProductRepository productRepository;
     private final OrderMapper orderMapper;
     private final UserService userService;
 
 
     @Override
     public OrderResponse checkout(OrderCreateRequest orderCreateRequest) {
-        log.info("Checkout started");
         User user = userService.getAuthenticatedUser();
+        log.info("Checkout started. userId={}",user.getId());
         Cart cart = getUserCart(user);
         validateStock(cart);
         Order order = createOrder(user);
@@ -44,11 +42,10 @@ public class OrderServiceImpl implements OrderService {
         order.setOrderItems(orderItems);
         BigDecimal totalAmount = calculateTotal(orderItems);
         order.setTotalAmount(totalAmount);
-        decreaseStock(cart);
+        order.setCart(cart);
         Order savedOrder = orderRepository.save(order);
-        log.info("Order created successfully");
-        clearCart(cart);
-        log.info("Checkout finished successfully");
+        log.info("Order created successfully. orderId={}, userId={}, totalAmount={}", savedOrder.getId(), user.getId(), totalAmount);
+        log.info("Checkout finished successfully. orderId={}", savedOrder.getId());
         return orderMapper.toOrderResponse(savedOrder);
     }
 
@@ -59,14 +56,15 @@ public class OrderServiceImpl implements OrderService {
                     return new NotFoundException("Cart not found");
                 });
         if (cart.getCartItems().isEmpty()) {
+            log.warn("Checkout failed. Cart is empty. userId={}, cartId={}", user.getId(), cart.getId());
             throw new BadRequestException("Cart is empty");
         }
-        log.info("Cart found");
+        log.info("Cart found. cartId={}, userId={}, itemCount={}", cart.getId(), user.getId(), cart.getCartItems().size());
         return cart;
     }
 
     private Order createOrder(User user) {
-        log.debug("Creating order for user");
+        log.debug("Creating order for userId={}", user.getId());
         Order order = new Order();
         order.setUser(user);
         order.setOrderStatus(OrderStatus.CREATED);
@@ -75,7 +73,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<OrderItem> createOrderItems(Cart cart, Order order) {
-        log.debug("Creating order items");
+        log.debug("Creating order items. cartId={}", cart.getId());
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
@@ -85,29 +83,23 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setPrice(product.getPrice());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItems.add(orderItem);
+            log.debug("Order item created. productName={}, quantity={}", product.getName(), cartItem.getQuantity());
         }
-        log.info("Order items created");
+        log.info("Order items created successfully. orderItemCount={}", orderItems.size());
         return orderItems;
     }
 
     private void validateStock(Cart cart) {
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
-            log.warn("Insufficient stock." );
+            log.warn("Insufficient stock. productId={}, requested={}, available={}",product.getId(),cartItem.getQuantity(),product.getStock());
             if (product.getStock() < cartItem.getQuantity()) {
                 throw new BadRequestException("There is not enough stock");
             }
         }
+        log.debug("Stock validation passed. cartId={}", cart.getId());
     }
 
-    private void decreaseStock(Cart cart) {
-        for (CartItem cartItem : cart.getCartItems()) {
-            Product product = cartItem.getProduct();
-            product.setStock(product.getStock() - cartItem.getQuantity());
-            productRepository.save(product);
-        }
-        log.debug("Stock decreased");
-    }
 
     private BigDecimal calculateTotal(List<OrderItem> orderItems) {
         BigDecimal total = BigDecimal.ZERO;
@@ -117,38 +109,33 @@ public class OrderServiceImpl implements OrderService {
                             .multiply(BigDecimal.valueOf(item.getQuantity()));
             total = total.add(itemTotal);
         }
-        log.info("Total amount calculated. total={}", total);
+        log.info("Total amount calculated. totalAmount={}", total);
         return total;
     }
 
-    private void clearCart(Cart cart) {
-        log.info("Clearing cart id.");
-        cartItemRepository.deleteAll(cart.getCartItems());
-    }
 
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<OrderResponse> getMyOrders() {
-        log.info("Fetching orders for current user");
         User user = userService.getAuthenticatedUser();
-        log.debug("Authenticated user");
+        log.info("Fetching orders for userId={}", user.getId());
         List<Order> orders = orderRepository.findAllByUserId(user.getId());
-        log.info("Orders fetched");
+        log.debug("Orders fetched successfully. userId={}, orderCount={}", user.getId(), orders.size());
         return orderMapper.toOrderResponseList(orders);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long orderId) {
-        log.info("Fetching order details");
         User user = userService.getAuthenticatedUser();
-        log.debug("Authenticated user ");
+        log.info("Fetching order details. orderId={}, userId={}", orderId, user.getId());
         Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
                 .orElseThrow(() -> {
+                    log.warn("Order not found. orderId={}, userId={}", orderId, user.getId());
                     return new NotFoundException("Order not found");
                 });
-        log.info("Order found");
+        log.info("Order details fetched successfully. orderId={}", orderId);
         return orderMapper.toOrderResponse(order);
     }
 }

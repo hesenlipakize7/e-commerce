@@ -1,6 +1,5 @@
-package eCommerce.serviceLayer.serviceImpl;
+package eCommerce.service.impl;
 
-import eCommerce.dto.response.FavoriteResponse;
 import eCommerce.dto.response.ProductResponse;
 import eCommerce.exception.AlreadyExistsException;
 import eCommerce.exception.NotFoundException;
@@ -10,12 +9,12 @@ import eCommerce.model.entity.User;
 import eCommerce.mapper.ProductMapper;
 import eCommerce.repository.FavoriteRepository;
 import eCommerce.repository.ProductRepository;
-import eCommerce.serviceLayer.service.FavoriteService;
-import eCommerce.serviceLayer.service.UserService;
-import jakarta.transaction.Transactional;
+import eCommerce.service.FavoriteService;
+import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -32,45 +31,45 @@ public class FavoriteServiceImpl implements FavoriteService {
     @Override
     public void addToFavorites(Long productId) {
         User user = userService.getAuthenticatedUser();
-        log.info("Add to favorites requested.");
+        log.info("Add to favorites request. userId={}, productId={}", user.getId(), productId);
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> {
-                    log.warn("Product not found while adding to favorites");
+                    log.warn("Product not found while adding to favorites. productId={}", productId);
                     return new NotFoundException("Product not found");
                 });
         boolean exists = favoriteRepository.existsByUserIdAndProductId(user.getId(), productId);
         if (exists) {
-            log.warn("Product already in favorites");
+            log.warn("Add to favorites failed. Product already in favorites. userId={}, productId={}", user.getId(), productId);
             throw new AlreadyExistsException("Product is already favourite");
         }
         Favorite favorite = new Favorite();
         favorite.setUser(user);
         favorite.setProduct(product);
         favoriteRepository.save(favorite);
-        log.info("Product added to favorites successfully.");
+        log.info("Product added to favorites successfully. userId={}, productId={}", user.getId(), productId);
 
     }
 
     @Override
     public void removeFromFavorites(Long productId) {
         User user = userService.getAuthenticatedUser();
-        log.info("Remove from favorites requested.");
+        log.info("Remove from favorites request. userId={}, productId={}", user.getId(), productId);
         Favorite favorite = favoriteRepository.findByUserIdAndProductId(user.getId(), productId)
                 .orElseThrow(() -> {
-                    log.warn("Favorite not found while removing.");
+                    log.warn("Favorite not found while removing. userId={}, productId={}", user.getId(), productId);
                     return new NotFoundException("Favorite not found");
                 });
         favoriteRepository.delete(favorite);
-        log.info("Product removed from favorites successfully.");
+        log.info("Product removed from favorites successfully. userId={}, productId={}", user.getId(), productId);
     }
 
     @Override
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<ProductResponse> getMyFavorites() {
         User user = userService.getAuthenticatedUser();
-        log.info("Fetching favorite products for user.");
+        log.info("Fetching favorite products for userId={}", user.getId());
         List<Favorite> favorites = favoriteRepository.findByUserId(user.getId());
-        log.debug("Favorite product count for userId={}", user.getId());
+        log.debug("Favorite products fetched. userId={}, count={}", user.getId(), favorites.size());
         return favorites.stream()
                 .map(Favorite::getProduct)
                 .map(productMapper::toDto)

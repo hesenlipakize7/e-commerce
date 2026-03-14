@@ -1,7 +1,7 @@
 package eCommerce.controller;
 
 import eCommerce.dto.response.ProductResponse;
-import eCommerce.serviceLayer.service.FavoriteService;
+import eCommerce.service.FavoriteService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

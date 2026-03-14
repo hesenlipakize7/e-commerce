@@ -1,7 +1,7 @@
 package eCommerce.controller;
 
 import eCommerce.dto.response.CartResponse;
-import eCommerce.serviceLayer.service.CartService;
+import eCommerce.service.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,12 +18,12 @@ public class CartController {
     }
 
     @PostMapping("/add/items")
-    public void addProductToCart(@RequestParam Long productId, @RequestParam int quantity) {
+    public void addProductToCart(@RequestParam Long productId, @RequestParam Integer quantity) {
         cartService.addProductToCart(productId, quantity);
     }
 
     @PutMapping("/items/{productId}")
-    public void updateProductQuantity(@PathVariable Long productId, @RequestParam int quantity) {
+    public void updateProductQuantity(@PathVariable Long productId, @RequestParam Integer quantity) {
         cartService.updateProductQuantity(productId, quantity);
     }
 

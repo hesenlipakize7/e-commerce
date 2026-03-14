@@ -15,11 +15,4 @@ public class CartItemResponse {
     private BigDecimal price;
     private Integer quantity;
 
-
-    public BigDecimal getTotalPrice() {
-        if (price==null) return BigDecimal.ZERO;
-        return price.multiply(BigDecimal.valueOf(quantity));
-
-    }
-
 }

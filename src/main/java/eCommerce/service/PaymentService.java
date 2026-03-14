@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
 import eCommerce.dto.request.PaymentCreateRequest;
 import eCommerce.dto.response.PaymentResponse;

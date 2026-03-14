@@ -8,13 +8,14 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface ProductMapper {
-    @Mapping(target = "id",ignore = true)
-    @Mapping(target = "favorites",ignore = true)
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "favorites", ignore = true)
     Product toEntity(ProductResponse productResponse);
 
 
-    @Mapping(target = "categoryId",source = "category.id")
+    @Mapping(target = "categoryId", source = "category.id")
     ProductResponse toDto(Product product);
 
-    List<ProductResponse> toResponseList (List<Product> products );
+    List<ProductResponse> toResponseList(List<Product> products);
 }

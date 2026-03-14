@@ -13,6 +13,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface CartMapper {
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "user", ignore = true)
     Cart toEntity(CartItemAddRequest cartItemAddRequest);
@@ -24,8 +25,8 @@ public interface CartMapper {
     CartItemResponse toItemDto(CartItem cartItem);
 
     CartResponse toDto(Cart cart);
-    List<CartItemResponse> toItemDtoList(List<CartItem> cartItems);
 
+    List<CartItemResponse> toItemDtoList(List<CartItem> cartItems);
 
 
 }

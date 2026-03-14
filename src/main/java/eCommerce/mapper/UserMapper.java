@@ -11,6 +11,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface UserMapper {
+
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "favorites", ignore = true)
     User toEntity(UserRegisterRequest userRegisterRequest);

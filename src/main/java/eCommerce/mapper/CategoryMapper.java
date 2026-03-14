@@ -16,7 +16,7 @@ public interface CategoryMapper {
     Category toEntity(CategoryResponse categoryResponse);
 
 
-    @Mapping(target = "parentId",source = "parent.id")
+    @Mapping(target = "parentId", source = "parent.id")
     CategoryResponse toDto(Category category);
 
     List<CategoryResponse> toResponseList(List<Category> categories);

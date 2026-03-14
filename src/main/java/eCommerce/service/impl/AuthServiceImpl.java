@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.serviceImpl;
+package eCommerce.service.impl;
 
 import eCommerce.dto.auth.LoginRequest;
 import eCommerce.dto.auth.RegisterRequest;
@@ -9,7 +9,7 @@ import eCommerce.model.entity.User;
 import eCommerce.model.enums.Role;
 import eCommerce.repository.UserRepository;
 import eCommerce.security.JwtService;
-import eCommerce.serviceLayer.service.AuthService;
+import eCommerce.service.AuthService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,26 +31,27 @@ public class AuthServiceImpl implements AuthService {
 
     @Override
     public RegisterResponse registerUser(RegisterRequest registerRequest) {
-        log.info("Registering User");
+        log.info("User registration request received. email={}",registerRequest.getEmail());
         if (userRepository.existsByEmail(registerRequest.getEmail())) {
+            log.warn("Registration failed. Email already exists. email={}", registerRequest.getEmail());
             throw new AlreadyExistsException("Email Already Exists");
         }
         User user = userMapper.toEntity(registerRequest);
         user.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
         user.setRole(Role.USER);
-        userRepository.save(user);
-        log.info("User with email {} registered successfully", registerRequest.getEmail());
+        User savedUser = userRepository.save(user);
+        log.info("User registered successfully. userId={}, email={}",savedUser.getId(), savedUser.getEmail());
         return new RegisterResponse("User successfully registered");
     }
 
     @Override
     public String loginUser(LoginRequest loginRequest) {
-        log.info("Login attempt. ");
+        log.info("Login attempt started. email={}",loginRequest.getEmail());
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                loginRequest.getEmail(),
-                loginRequest.getPassword()));
-        log.info("Login successful.");
-        return  jwtService.generateToken(authentication.getName());
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()));
+        log.info("Login successful. email={}", authentication.getName());
+        return jwtService.generateToken(authentication.getName());
     }
 }

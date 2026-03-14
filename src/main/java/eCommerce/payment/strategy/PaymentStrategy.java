@@ -1,4 +1,4 @@
-package eCommerce.payment.strategi;
+package eCommerce.payment.strategy;
 
 import eCommerce.dto.request.PaymentCreateRequest;
 import eCommerce.model.entity.Order;

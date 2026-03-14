@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.serviceImpl;
+package eCommerce.service.impl;
 
 import eCommerce.dto.update.ChangePasswordRequest;
 import eCommerce.dto.update.UserUpdateRequest;
@@ -9,7 +9,7 @@ import eCommerce.exception.UnauthorizedException;
 import eCommerce.model.entity.User;
 import eCommerce.mapper.UserMapper;
 import eCommerce.repository.UserRepository;
-import eCommerce.serviceLayer.service.UserService;
+import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
@@ -32,22 +32,22 @@ public class UserServiceImpl implements UserService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() ||
             authentication instanceof AnonymousAuthenticationToken) {
-            log.warn("Unauthorized access attempt");
+            log.warn("Unauthorized access attempt detected");
             throw new UnauthorizedException("User is not authenticated");
         }
         String email = authentication.getName();
-        log.debug("Authenticated user email extracted from token.");
+        log.debug("Authenticated user email extracted from token. email={}", email);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
-                log.error("Authenticated user not found in database.");
-                        return new NotFoundException("User not found");
+                    log.error("Authenticated user not found in database. email={}", email);
+                    return new NotFoundException("User not found");
                 });
     }
 
     @Override
     public UserResponse getMyProfile() {
-        User user= getAuthenticatedUser();
-        log.info("User profile requested.");
+        User user = getAuthenticatedUser();
+        log.info("User profile requested. userId={}, email={}", user.getId(), user.getEmail());
         return userMapper.toDto(user);
     }
 
@@ -55,10 +55,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserResponse updateMyProfile(UserUpdateRequest userUpdateRequest) {
         User user = getAuthenticatedUser();
-        log.info("User profile update started.");
+        log.info("User profile update request received. userId={}", user.getId());
         userMapper.updateUserFromDto(userUpdateRequest, user);
         userRepository.save(user);
-        log.info("User profile updated successfully.");
+        log.info("User profile updated successfully. userId={}", user.getId());
         return userMapper.toDto(user);
     }
 
@@ -67,12 +67,12 @@ public class UserServiceImpl implements UserService {
         User user = getAuthenticatedUser();
         log.info("Password change attempt. userId={}", user.getId());
         if (!passwordEncoder.matches(changePasswordRequest.getOldPassword(), user.getPassword())) {
-            log.warn("Password change failed. Wrong current password.");
+            log.warn("Password change failed. Incorrect current password. userId={}", user.getId());
             throw new BadRequestException("Current password is incorrect");
         }
         user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
         userRepository.save(user);
-        log.info("Password changed successfully.");
-        return  userMapper.toDto(user);
+        log.info("Password changed successfully. userId={}", user.getId());
+        return userMapper.toDto(user);
     }
 }

@@ -13,14 +13,17 @@ import java.math.BigDecimal;
 @Setter
 @NoArgsConstructor
 public class ProductCreateRequest {
-    @NotBlank
+    @NotBlank(message = "Məhsul adı boş ola bilməz")
     private String name;
-    @NotNull
-    @Positive
+
+    @NotNull(message = "Qiymət boş ola bilməz")
+    @Positive(message = "Qiymət müsbət olmalıdır")
     private BigDecimal price;
-    @NotNull
-    @Positive
+
+    @NotNull(message = "Stok sayı boş ola bilməz")
+    @Positive(message = "Stok sayı müsbət olmalıdır")
     private Integer stock;
-    @NotNull
+
+    @NotNull(message = "Kateqoriya seçilməlidir")
     private Long categoryId;
 }

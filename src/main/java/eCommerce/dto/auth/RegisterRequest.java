@@ -15,7 +15,7 @@ public class RegisterRequest {
     @NotBlank(message = "Soyad boş ola bilməz")
     private String surname;
 
-    @NotBlank(message = "email boş ola bilməz")
+    @NotBlank(message = "Email boş ola bilməz")
     @Email(message = "Email formatı yanlışdır")
     private String email;
 

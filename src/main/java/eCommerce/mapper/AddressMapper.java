@@ -11,8 +11,8 @@ import java.util.List;
 @Mapper(componentModel = "spring")
 public interface AddressMapper {
 
-    @Mapping(target = "id",  ignore = true)
-    @Mapping(target = "user",  ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "user", ignore = true)
     Address toEntity(AddressCreateRequest addressCreateRequest);
 
     @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
@@ -20,5 +20,5 @@ public interface AddressMapper {
 
     AddressResponse toDto(Address address);
 
-    List<AddressResponse> toResponseList (List<Address> addressList);
+    List<AddressResponse> toResponseList(List<Address> addressList);
 }

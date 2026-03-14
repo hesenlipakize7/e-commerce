@@ -5,7 +5,7 @@ import eCommerce.dto.auth.LoginRequest;
 import eCommerce.dto.auth.RegisterRequest;
 import eCommerce.dto.auth.RegisterResponse;
 import eCommerce.security.JwtService;
-import eCommerce.serviceLayer.service.AuthService;
+import eCommerce.service.AuthService;
 import jakarta.validation.Valid;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
@@ -22,9 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @Data
 @RequiredArgsConstructor
 public class AuthController {
-    private final JwtService jwtService;
     private final AuthService authService;
-    private final AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
     public ResponseEntity<RegisterResponse> register(@Valid @RequestBody RegisterRequest registerRequest) {

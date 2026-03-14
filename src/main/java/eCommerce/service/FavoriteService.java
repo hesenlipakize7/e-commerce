@@ -1,6 +1,5 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
-import eCommerce.dto.response.FavoriteResponse;
 import eCommerce.dto.response.ProductResponse;
 
 import java.util.List;

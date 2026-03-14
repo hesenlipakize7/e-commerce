@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
 
 import eCommerce.dto.request.CategoryCreateRequest;
@@ -12,12 +12,17 @@ import java.util.List;
 
 public interface CategoryService {
     List<CategoryResponse> getSubCategories(Long parentId);
+
     CategoryResponse getById(Long id);
+
     Page<ProductResponse> getProducts(Long categoryId, Pageable pageable);
+
     List<CategoryResponse> search(String keyword);
 
     CategoryResponse createCategory(CategoryCreateRequest createRequest);
-    CategoryResponse updateCategory(Long id,CategoryUpdateRequest updateRequest);
+
+    CategoryResponse updateCategory(Long id, CategoryUpdateRequest updateRequest);
+
     void deleteCategory(Long id);
 
 }

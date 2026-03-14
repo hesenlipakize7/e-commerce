@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.service;
+package eCommerce.service;
 
 import eCommerce.dto.response.UserResponse;
 import eCommerce.dto.update.ChangePasswordRequest;

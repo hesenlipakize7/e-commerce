@@ -1,4 +1,4 @@
-package eCommerce.serviceLayer.serviceImpl;
+package eCommerce.service.impl;
 
 import eCommerce.dto.request.AddressCreateRequest;
 import eCommerce.dto.response.AddressResponse;
@@ -8,19 +8,19 @@ import eCommerce.mapper.AddressMapper;
 import eCommerce.model.entity.Address;
 import eCommerce.model.entity.User;
 import eCommerce.repository.AddressRepository;
-import eCommerce.serviceLayer.service.AddressService;
-import eCommerce.serviceLayer.service.UserService;
-import jakarta.transaction.Transactional;
+import eCommerce.service.AddressService;
+import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 @Slf4j
+@Transactional
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
@@ -29,11 +29,11 @@ public class AddressServiceImpl implements AddressService {
     @Override
     public AddressResponse createAddress(AddressCreateRequest addressCreateRequest) {
         User user = userService.getAuthenticatedUser();
-        log.info("Create address requested. ");
+        log.info("Create address request received for userId={} ", user.getId());
         Address address = addressMapper.toEntity(addressCreateRequest);
         address.setUser(user);
         Address savedAddress = addressRepository.save(address);
-        log.info("Address created successfully : " + address);
+        log.info("Address created successfully.addressId={}, userId={} ", savedAddress.getId(), user.getId());
         return addressMapper.toDto(savedAddress);
     }
 
@@ -41,37 +41,38 @@ public class AddressServiceImpl implements AddressService {
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AddressResponse> getMyAddresses() {
         User user = userService.getAuthenticatedUser();
-        log.info("Fetching addresses for user. " );
+        log.info("Fetching addresses for userId={} ", user.getId());
         List<Address> addresses = addressRepository.findAllByUserId(user.getId());
-        log.debug("Address count for user " );
-        return addressMapper.toResponseList(addresses);
+        List<AddressResponse> addressResponseList = addressMapper.toResponseList(addresses);
+        log.debug("Fetched {} addresses for userId={}", addressResponseList.size(), user.getId());
+        return addressResponseList;
     }
 
     @Override
     public AddressResponse updateAddress(Long addressId, AddressUpdateRequest addressUpdateRequest) {
         User user = userService.getAuthenticatedUser();
-        log.info("Update address requested. ");
+        log.info("Update address request received. addressId={}, userId={}", addressId, user.getId());
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
                 .orElseThrow(() -> {
-                    log.warn("Address not found for update. ");
+                    log.warn("Address not found for update. addressId={}, userId={}", addressId, user.getId());
                     return new NotFoundException("Address not found");
                 });
         addressMapper.updateAddressFromDto(addressUpdateRequest, address);
         Address updatedAddress = addressRepository.save(address);
-        log.info("Address updated successfully. " );
+        log.info("Address updated successfully. addressId={}, userId={}", addressId, user.getId());
         return addressMapper.toDto(updatedAddress);
     }
 
     @Override
     public void deleteAddress(Long addressId) {
         User user = userService.getAuthenticatedUser();
-        log.info("Delete address requested.");
+        log.info("Delete address request received. addressId={}, userId={}", addressId, user.getId());
         Address address = addressRepository.findByIdAndUserId(addressId, user.getId())
                 .orElseThrow(() -> {
-                    log.warn("Address not found for delete. ");
+                    log.warn("Address not found for delete. addressId={}, userId={}", addressId, user.getId());
                     return new NotFoundException("Address not found");
                 });
         addressRepository.delete(address);
-        log.info("Address delete successfully. ");
+        log.info("Address delete successfully. addressId={}, userId={} ", addressId, user.getId());
     }
 }

@@ -3,7 +3,7 @@ package eCommerce.controller;
 import eCommerce.dto.request.AddressCreateRequest;
 import eCommerce.dto.response.AddressResponse;
 import eCommerce.dto.update.AddressUpdateRequest;
-import eCommerce.serviceLayer.service.AddressService;
+import eCommerce.service.AddressService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

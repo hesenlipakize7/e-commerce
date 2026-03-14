@@ -3,7 +3,7 @@ package eCommerce.controller;
 import eCommerce.dto.response.UserResponse;
 import eCommerce.dto.update.ChangePasswordRequest;
 import eCommerce.dto.update.UserUpdateRequest;
-import eCommerce.serviceLayer.service.UserService;
+import eCommerce.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

@@ -3,7 +3,7 @@ package eCommerce.controller;
 import eCommerce.dto.request.ProductCreateRequest;
 import eCommerce.dto.response.ProductResponse;
 import eCommerce.dto.update.ProductUpdateRequest;
-import eCommerce.serviceLayer.service.ProductService;
+import eCommerce.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;

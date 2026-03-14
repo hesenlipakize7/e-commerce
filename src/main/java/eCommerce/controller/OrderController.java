@@ -2,7 +2,7 @@ package eCommerce.controller;
 
 import eCommerce.dto.request.OrderCreateRequest;
 import eCommerce.dto.response.OrderResponse;
-import eCommerce.serviceLayer.service.OrderService;
+import eCommerce.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;

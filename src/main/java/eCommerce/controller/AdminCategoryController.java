@@ -3,7 +3,7 @@ package eCommerce.controller;
 import eCommerce.dto.request.CategoryCreateRequest;
 import eCommerce.dto.response.CategoryResponse;
 import eCommerce.dto.update.CategoryUpdateRequest;
-import eCommerce.serviceLayer.service.CategoryService;
+import eCommerce.service.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,12 +17,12 @@ public class AdminCategoryController {
     private final CategoryService categoryService;
 
     @PostMapping
-    CategoryResponse createCategory(@Valid @RequestBody CategoryCreateRequest createRequest) {
+    public CategoryResponse createCategory(@Valid @RequestBody CategoryCreateRequest createRequest) {
         return categoryService.createCategory(createRequest);
     }
 
     @PutMapping("/{id}")
-    CategoryResponse updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateRequest updateRequest) {
+    public CategoryResponse updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryUpdateRequest updateRequest) {
         return categoryService.updateCategory(id, updateRequest);
     }
 

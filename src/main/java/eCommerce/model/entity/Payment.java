@@ -23,9 +23,6 @@ public class Payment {
     private BigDecimal amount;
 
     @Column(nullable = false)
-    private String transactionId;
-
-    @Column(nullable = false)
     private LocalDateTime paymentDate;
 
     @OneToOne(fetch = FetchType.LAZY)

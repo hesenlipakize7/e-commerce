@@ -2,7 +2,7 @@ package eCommerce.payment.factory;
 
 import eCommerce.exception.BadRequestException;
 import eCommerce.model.enums.PaymentMethod;
-import eCommerce.payment.strategi.PaymentStrategy;
+import eCommerce.payment.strategy.PaymentStrategy;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;

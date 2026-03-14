@@ -19,7 +19,7 @@ public class AddressCreateRequest {
     @NotBlank(message = "Küçə boş ola bilməz")
     private String street;
 
-    @NotBlank(message = "poçt kodu boş ola bilməz")
+    @NotBlank(message = "Poçt kodu boş ola bilməz")
     private String postalCode;
 
     @NotBlank(message = "Telefon nömrəsi boş ola bilməz")

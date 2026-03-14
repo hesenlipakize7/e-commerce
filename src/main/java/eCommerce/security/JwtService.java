@@ -15,8 +15,8 @@ import java.util.Date;
 @RequiredArgsConstructor
 public class JwtService {
 
-    private static final String SECRET="mySecretKeyCristianoRonaldoRealMadrid777rrr8uno47gds988976799999iou9y777u9nff7458jhb";
-    private static final long EXPIRATION = 1000*60*60*24;
+    private static final String SECRET = "mySecretKeyCristianoRonaldoRealMadrid777rrr8uno47gds988976799999iou9y777u9nff7458jhb";
+    private static final long EXPIRATION = 1000 * 60 * 60 * 24;
 
 
     public String generateToken(String email) {
@@ -45,7 +45,8 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-    private SecretKey getSigningKey(){
+
+    private SecretKey getSigningKey() {
         return Keys.hmacShaKeyFor(SECRET.getBytes());
     }
 }
