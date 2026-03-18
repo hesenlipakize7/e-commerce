@@ -21,7 +21,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class FavoriteServiceImpl implements FavoriteService {
     private final FavoriteRepository favoriteRepository;
     private final ProductRepository productRepository;
@@ -47,7 +46,6 @@ public class FavoriteServiceImpl implements FavoriteService {
         favorite.setProduct(product);
         favoriteRepository.save(favorite);
         log.info("Product added to favorites successfully. userId={}, productId={}", user.getId(), productId);
-
     }
 
     @Override
@@ -64,12 +62,11 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<ProductResponse> getMyFavorites() {
         User user = userService.getAuthenticatedUser();
         log.info("Fetching favorite products for userId={}", user.getId());
         List<Favorite> favorites = favoriteRepository.findByUserId(user.getId());
-        log.debug("Favorite products fetched. userId={}, count={}", user.getId(), favorites.size());
+        log.info("Favorite products fetched. userId={}, count={}", user.getId(), favorites.size());
         return favorites.stream()
                 .map(Favorite::getProduct)
                 .map(productMapper::toDto)

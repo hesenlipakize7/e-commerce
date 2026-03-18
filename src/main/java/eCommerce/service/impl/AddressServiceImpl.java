@@ -13,14 +13,12 @@ import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class AddressServiceImpl implements AddressService {
     private final AddressRepository addressRepository;
     private final AddressMapper addressMapper;
@@ -38,13 +36,12 @@ public class AddressServiceImpl implements AddressService {
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public List<AddressResponse> getMyAddresses() {
         User user = userService.getAuthenticatedUser();
         log.info("Fetching addresses for userId={} ", user.getId());
         List<Address> addresses = addressRepository.findAllByUserId(user.getId());
         List<AddressResponse> addressResponseList = addressMapper.toResponseList(addresses);
-        log.debug("Fetched {} addresses for userId={}", addressResponseList.size(), user.getId());
+        log.info("Fetched {} addresses for userId={}", addressResponseList.size(), user.getId());
         return addressResponseList;
     }
 

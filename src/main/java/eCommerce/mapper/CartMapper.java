@@ -27,6 +27,4 @@ public interface CartMapper {
     CartResponse toDto(Cart cart);
 
     List<CartItemResponse> toItemDtoList(List<CartItem> cartItems);
-
-
 }

@@ -1,9 +1,7 @@
 package eCommerce.mapper;
 
-import eCommerce.dto.response.OrderItemResponse;
 import eCommerce.dto.response.OrderResponse;
 import eCommerce.model.entity.Order;
-import eCommerce.model.entity.OrderItem;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

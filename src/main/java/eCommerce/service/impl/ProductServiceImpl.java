@@ -20,13 +20,13 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class ProductServiceImpl implements ProductService {
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
     private final CategoryRepository categoryRepository;
 
     @Override
+    @Transactional
     public ProductResponse createProduct(ProductCreateRequest productCreateRequest) {
         log.info("Create product request. name={}, categoryId={}, price={}, stock={}",
                 productCreateRequest.getName(), productCreateRequest.getCategoryId(),
@@ -48,6 +48,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    @Transactional
     public ProductResponse updateProduct(Long id, ProductUpdateRequest productUpdateRequest) {
         log.info("Update product request. productId={}", id);
         Product product = productRepository.findById(id)
@@ -92,7 +93,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> getAll() {
         log.info("Fetching all products");
         List<Product> products = productRepository.findAll();
-        log.debug("Products fetched successfully. count={}", products.size());
+        log.info("Products fetched successfully. count={}", products.size());
         return productMapper.toResponseList(products);
     }
 
@@ -105,7 +106,7 @@ public class ProductServiceImpl implements ProductService {
                     log.warn("Product not found. productId={}", productId);
                     return new NotFoundException("Product not found");
                 });
-        log.debug("Product fetched successfully. productId={}", productId);
+        log.info("Product fetched successfully. productId={}", productId);
         return productMapper.toDto(product);
     }
 
@@ -117,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
         if (products.isEmpty()) {
             log.warn("No products found for categoryId={}", categoryId);
         } else {
-            log.debug("Products fetched for categoryId={}, count={}", categoryId, products.size());
+            log.info("Products fetched for categoryId={}, count={}", categoryId, products.size());
         }
         return productMapper.toResponseList(products);
     }
@@ -126,7 +127,7 @@ public class ProductServiceImpl implements ProductService {
     public List<ProductResponse> search(String keyword) {
         log.info("Product search request. keyword={}", keyword);
         List<Product> products = productRepository.findByNameContainingIgnoreCase(keyword);
-        log.debug("Product search completed. keyword={}, resultCount={}", keyword, products.size());
+        log.info("Product search completed. keyword={}, resultCount={}", keyword, products.size());
         return productMapper.toResponseList(products);
     }
 }

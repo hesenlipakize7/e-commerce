@@ -36,7 +36,7 @@ public class UserServiceImpl implements UserService {
             throw new UnauthorizedException("User is not authenticated");
         }
         String email = authentication.getName();
-        log.debug("Authenticated user email extracted from token. email={}", email);
+        log.info("Authenticated user email extracted from token. email={}", email);
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> {
                     log.error("Authenticated user not found in database. email={}", email);

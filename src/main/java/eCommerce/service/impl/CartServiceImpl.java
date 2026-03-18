@@ -17,7 +17,6 @@ import eCommerce.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -57,7 +56,6 @@ public class CartServiceImpl implements CartService {
     }
 
     @Override
-    @Transactional
     public void removeProductFromCart(Long productId) {
         User user = userService.getAuthenticatedUser();
         log.info("Remove product from cart requested. userId={}, productId={}", user.getId(), productId);
@@ -72,12 +70,12 @@ public class CartServiceImpl implements CartService {
                     log.warn("Remove product failed. Product not found in cart. cartId={}, productId={}", cart.getId(), productId);
                     return new NotFoundException("Product not in cart");
                 });
+        cart.getCartItems().remove(cartItem);
         cartItemRepository.delete(cartItem);
         log.info("Product removed from cart successfully. cartId={}, productId={} ", cart.getId(), productId);
     }
 
     @Override
-    @Transactional
     public void updateProductQuantity(Long productId, Integer quantity) {
         if (quantity <= 0) {
             log.warn("Invalid quantity update attempted. productId={}, quantity={}", productId, quantity);
@@ -96,11 +94,10 @@ public class CartServiceImpl implements CartService {
                     return new NotFoundException("Product not in cart");
                 });
         cartItem.setQuantity(quantity);
-        log.debug("Product quantity updated. cartId={}, productId={}, newQuantity={}", cart.getId(), productId, quantity);
+        log.info("Product quantity updated. cartId={}, productId={}, newQuantity={}", cart.getId(), productId, quantity);
     }
 
     @Override
-    @Transactional(readOnly = true)
     public CartResponse getMyCart() {
         User user = userService.getAuthenticatedUser();
         log.info("Fetching cart for userId={} ", user.getId());
@@ -114,7 +111,7 @@ public class CartServiceImpl implements CartService {
 
         BigDecimal totalPrice = BigDecimal.ZERO;
 
-        for (CartItem item : cart.getCartItems()) {
+        for (CartItem item : cartItems) {
             Product product = item.getProduct();
             if (product == null || product.getPrice() == null) {
                 log.warn("Invalid product in cart. cartItemId={} ", item.getId());
@@ -130,7 +127,7 @@ public class CartServiceImpl implements CartService {
         response.setCartId(cart.getId());
         response.setCartItems(items);
         response.setTotalPrice(totalPrice);
-        log.debug("Cart fetched successfully. cartId={}, itemCount={}, totalPrice={}", cart.getId(), items.size(), totalPrice);
+        log.info("Cart fetched successfully. cartId={}, itemCount={}, totalPrice={}", cart.getId(), items.size(), totalPrice);
         return response;
     }
 
@@ -139,7 +136,7 @@ public class CartServiceImpl implements CartService {
         Cart cart = new Cart();
         cart.setUser(user);
         Cart savedCart = cartRepository.save(cart);
-        log.debug("Cart created successfully. cartId={}, userId={} ", savedCart.getId(), user.getId());
+        log.info("Cart created successfully. cartId={}, userId={} ", savedCart.getId(), user.getId());
         return savedCart;
     }
 }

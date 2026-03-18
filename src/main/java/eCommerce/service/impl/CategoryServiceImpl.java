@@ -18,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 
 @Service
@@ -60,7 +58,7 @@ public class CategoryServiceImpl implements CategoryService {
                 });
         category.setName(updateRequest.getName());
         if (updateRequest.getParentId() != null) {
-            Category parent = categoryRepository.findById(id)
+            Category parent = categoryRepository.findById(updateRequest.getParentId())
                     .orElseThrow(() -> {
                         log.warn("Parent category not found: parentId={}", updateRequest.getParentId());
                         return new NotFoundException("Parent category not found");
@@ -84,16 +82,15 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
-    @Transactional(readOnly = true)
     public Page<ProductResponse> getProducts(Long categoryId, Pageable pageable) {
-        log.info("Fetching products for categoryId={}, page={}, size={}", categoryId, pageable.getOffset(), pageable.getPageSize());
+        log.info("Fetching products for categoryId={}, page={}, size={}", categoryId, pageable, pageable.getPageSize());
         Category category = categoryRepository.findById(categoryId)
                 .orElseThrow(() -> {
                     log.warn("Category not found while fetching products. categoryId={}", categoryId);
                     return new NotFoundException("Category not found");
                 });
         Page<Product> products = productRepository.findAllByCategoryId(category.getId(), pageable);
-        log.debug("Products fetched. categoryId={}, totalElements={}", categoryId, products.getTotalElements());
+        log.info("Products fetched. categoryId={}, totalElements={}", categoryId, products.getTotalElements());
         return products.map(productMapper::toDto);
     }
 
@@ -117,24 +114,24 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public List<CategoryResponse> getSubCategories(Long parentId) {
         log.info("Fetching sub categories for parentId={}", parentId);
-        Category parentCategory = categoryRepository.findById(parentId)
+        Category parentCategory = categoryRepository.findWithSubCategoriesById(parentId)
                 .orElseThrow(() -> {
                     log.warn("Parent category not found : parentId={}", parentId);
                     return new NotFoundException("Category Not Found");
                 });
-        log.debug("Sub categories fetched. parentId={}, count={}", parentId, parentCategory.getSubCategories().size());
+        log.info("Sub categories fetched. parentId={}, count={}", parentId, parentCategory.getSubCategories().size());
         return categoryMapper.toResponseList(parentCategory.getSubCategories());
     }
 
     @Override
     public CategoryResponse getById(Long id) {
         log.info("Fetching category by id. categoryId={}", id);
-        Category category = categoryRepository.findById(id)
+        Category category = categoryRepository.findWithSubCategoriesById(id)
                 .orElseThrow(() -> {
                     log.warn("Category not found. categoryId={}", id);
                     return new NotFoundException("Category Not Found");
                 });
-        log.debug("Category fetched successfully. categoryId={}", category.getId());
+        log.info("Category fetched successfully. categoryId={}", category.getId());
         return categoryMapper.toDto(category);
     }
 }

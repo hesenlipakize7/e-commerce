@@ -23,7 +23,6 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-@Transactional
 public class OrderServiceImpl implements OrderService {
     private final OrderRepository orderRepository;
     private final CartRepository cartRepository;
@@ -32,6 +31,7 @@ public class OrderServiceImpl implements OrderService {
 
 
     @Override
+    @Transactional
     public OrderResponse checkout(OrderCreateRequest orderCreateRequest) {
         User user = userService.getAuthenticatedUser();
         log.info("Checkout started. userId={}",user.getId());
@@ -44,13 +44,12 @@ public class OrderServiceImpl implements OrderService {
         order.setTotalAmount(totalAmount);
         order.setCart(cart);
         Order savedOrder = orderRepository.save(order);
-        log.info("Order created successfully. orderId={}, userId={}, totalAmount={}", savedOrder.getId(), user.getId(), totalAmount);
         log.info("Checkout finished successfully. orderId={}", savedOrder.getId());
         return orderMapper.toOrderResponse(savedOrder);
     }
 
     private Cart getUserCart(User user) {
-        log.debug("Fetching cart for userId={}", user.getId());
+        log.info("Fetching cart for userId={}", user.getId());
         Cart cart = cartRepository.findByUserId(user.getId())
                 .orElseThrow(() -> {
                     return new NotFoundException("Cart not found");
@@ -64,7 +63,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private Order createOrder(User user) {
-        log.debug("Creating order for userId={}", user.getId());
+        log.info("Creating order for userId={}", user.getId());
         Order order = new Order();
         order.setUser(user);
         order.setOrderStatus(OrderStatus.CREATED);
@@ -73,7 +72,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private List<OrderItem> createOrderItems(Cart cart, Order order) {
-        log.debug("Creating order items. cartId={}", cart.getId());
+        log.info("Creating order items. cartId={}", cart.getId());
         List<OrderItem> orderItems = new ArrayList<>();
         for (CartItem cartItem : cart.getCartItems()) {
             Product product = cartItem.getProduct();
@@ -83,7 +82,7 @@ public class OrderServiceImpl implements OrderService {
             orderItem.setPrice(product.getPrice());
             orderItem.setQuantity(cartItem.getQuantity());
             orderItems.add(orderItem);
-            log.debug("Order item created. productName={}, quantity={}", product.getName(), cartItem.getQuantity());
+            log.info("Order item created. productName={}, quantity={}", product.getName(), cartItem.getQuantity());
         }
         log.info("Order items created successfully. orderItemCount={}", orderItems.size());
         return orderItems;
@@ -97,7 +96,7 @@ public class OrderServiceImpl implements OrderService {
                 throw new BadRequestException("There is not enough stock");
             }
         }
-        log.debug("Stock validation passed. cartId={}", cart.getId());
+        log.info("Stock validation passed. cartId={}", cart.getId());
     }
 
 
@@ -114,25 +113,23 @@ public class OrderServiceImpl implements OrderService {
     }
 
 
-
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    @Transactional
     public List<OrderResponse> getMyOrders() {
         User user = userService.getAuthenticatedUser();
         log.info("Fetching orders for userId={}", user.getId());
         List<Order> orders = orderRepository.findAllByUserId(user.getId());
-        log.debug("Orders fetched successfully. userId={}, orderCount={}", user.getId(), orders.size());
+        log.info("Orders fetched successfully. userId={}, orderCount={}", user.getId(), orders.size());
         return orderMapper.toOrderResponseList(orders);
     }
 
     @Override
-    @org.springframework.transaction.annotation.Transactional(readOnly = true)
     public OrderResponse getOrderDetails(Long orderId) {
         User user = userService.getAuthenticatedUser();
         log.info("Fetching order details. orderId={}, userId={}", orderId, user.getId());
-        Order order = orderRepository.findByIdAndUserId(orderId, user.getId())
+        Order order = orderRepository.findWithItemsById(orderId)
                 .orElseThrow(() -> {
-                    log.warn("Order not found. orderId={}, userId={}", orderId, user.getId());
+                    log.warn("Order not found. orderId={}", orderId);
                     return new NotFoundException("Order not found");
                 });
         log.info("Order details fetched successfully. orderId={}", orderId);

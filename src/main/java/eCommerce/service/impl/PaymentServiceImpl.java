@@ -36,7 +36,7 @@ public class PaymentServiceImpl implements PaymentService {
         validateOrderPayment(order);
 
         PaymentStrategy strategy = paymentStrategyFactory.getStrategy(createRequest.getPaymentMethod());
-        log.debug("Payment strategy selected. method={}", strategy.getClass().getName());
+        log.info("Payment strategy selected. method={}", strategy.getClass().getName());
 
         Payment payment = strategy.processPayment(order, createRequest);
         Payment savedPayment = paymentRepository.save(payment);
@@ -46,7 +46,6 @@ public class PaymentServiceImpl implements PaymentService {
         order.setPayment(savedPayment);
 
         if (savedPayment.getPaymentStatus() == PaymentStatus.SUCCESS) {
-            log.info("Payment successful. Updating stock and clearing cart. orderId={}, userId={}", order.getId(), order.getUser().getId());
             Cart cart = cartRepository.findByUserId(order.getUser().getId())
                     .orElseThrow(() -> new NotFoundException("Cart not found"));
             for (CartItem cartItem : cart.getCartItems()) {
@@ -63,8 +62,8 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     private Order getOrder(Long orderId) {
-        log.debug("Fetching order for payment. orderId={}", orderId);
-        return orderRepository.findById(orderId)
+        log.info("Fetching order for payment. orderId={}", orderId);
+        return orderRepository.findWithItemsById(orderId)
                 .orElseThrow(() -> {
                     log.warn("Order not found during payment. orderId={}", orderId);
                     return new NotFoundException("Order not found");
@@ -76,6 +75,6 @@ public class PaymentServiceImpl implements PaymentService {
             log.warn("Payment attempt for already paid order. orderId={}", order.getId());
             throw new BadRequestException("Order is already paid");
         }
-        log.debug("Order payment validation passed. orderId={}", order.getId());
+        log.info("Order payment validation passed. orderId={}", order.getId());
     }
 }
