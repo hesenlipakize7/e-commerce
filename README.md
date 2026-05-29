@@ -1,0 +1,1 @@
+Spring Boot istifadə edərək e-commerce backend sistemi hazırlamışam. Sistem istifadəçi qeydiyyatı, məhsul kataloqu, səbət, sifariş və ödəniş funksiyalarını dəstəkləyir. Authentication üçün JWT və role-based authorization istifadə etmişəm. DTO, MapStruct mapper, validation və Strategy design pattern tətbiq etmişəm.
